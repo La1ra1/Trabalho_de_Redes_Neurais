@@ -42,13 +42,17 @@ class Net:
         
         out_array = self.layers[-1].get_layer_out()
         
-        if d_array != []:
+        if d_array != []:#cálculo dos gradientes locais versão para três camadas
             e_array = []
             for i in range(self.layers[-1].layer_len):
                 e_array.append(d_array[i] - out_array[i])
 
             for i in range(self.layers[-1].layer_len):
-                self.layers[-1].neuro_vec[i].lc = e_array[i]* self.layers[-1].neuro_vec[i].get_d_out()
+                self.layers[-1].neuro_vec[i].lc = e_array[i] * self.layers[-1].neuro_vec[i].get_d_out()
+
+            lc_vec = self.layers[-1].get_layer_lc()
+            for i in range(self.layers[-2].layer_len):
+                self.layers[-2].neuro_vec[i].lc = self.layers[-2].neuro_vec[i].get_d_out()*dot(lc_vec, self.links[-1].weights_array[i])
 
         return out_array
 

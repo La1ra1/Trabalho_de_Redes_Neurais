@@ -61,3 +61,9 @@ class Layer:
             self.__layer_out.append(neuron.get_out())
         
         return self.__layer_out
+
+    def get_layer_lc(self):
+        lc_vector = []
+        for neuron in self.neuro_vec:
+            lc_vector.append(neuron.lc)
+        return lc_vector
