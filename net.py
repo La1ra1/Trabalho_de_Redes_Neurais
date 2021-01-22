@@ -74,10 +74,47 @@ class Net:
         
         ##
 
-        return out_array
+        s = 0
+        for e in e_array:
+            s = s + e**2
+
+        q_error = s/2
+
+        return [out_array, q_error]
+    
+    def __season(self, input_data, d_output_data, learning_rate):
+        if len(input_data) != len(d_output_data):
+            raise Exception('The number of input arrays must be equal to the number of desired output arrays')
+
+        if learning_rate <= 0:
+            raise ValueError('The learning rate must be more than zero')
+        
+        s = 0
+        for n in range(len(input_data)):
+            s = s + self.net_run(input_data[n], d_output_data[n])[1]
+            for l in [-1, -2]:
+                for i in range(self.layers[l-1].layer_len):
+                    for j in range(self.layers[l].layer_len):
+                        self.links[l].weights_array[i][j] = self.links[l].weights_array[i][j] + learning_rate * self.layers[l].neuro_vec[j].lc * self.layers[l-1].get_layer_out()[i]
+
+        MSE = s/len(input_data)
+        return MSE
+
+    def __calculate_validation_MSE(self, input_data, d_output_data):
+        if len(input_data) != len(d_output_data):
+            raise Exception('The number of input arrays must be equal to the number of desired output arrays')
+
+        s = 0
+        for n in range(len(input_data)):
+            s = s + self.net_run(input_data[n], d_output_data[n])[1]
+
+        MSE = s/len(input_data)
+        return MSE
+
     
     ##
 
+        
 ##  Teste pra ver se o código está sem erros
 
 rede = Net([2,2,1],[[1,1],[1,1],[1,1]])
