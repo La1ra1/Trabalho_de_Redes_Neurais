@@ -4,7 +4,7 @@ from numpy import dot
 from numpy import transpose
 
 class Net:
-    def __init__(self, topology_array, p_coeficient_array): #vetor que mostra a quantidade de neurônios em cada camada
+    def __init__(self, topology_array, p_coeficient_array, learning_rate = 0.01): #vetor que mostra a quantidade de neurônios em cada camada
         
         ## Verificações
         
@@ -18,6 +18,7 @@ class Net:
         
         self.layers = [] #Contém todos os layers da rede
         self.links = [] #Comtém todos os links da rede
+        self.lr = learning_rate
 
         i = 0
         for number in topology_array:#Alocação dos layers de acordo com a topologia da rede
@@ -82,11 +83,11 @@ class Net:
 
         return [out_array, q_error]
     
-    def __season(self, input_data, d_output_data, learning_rate):
+    def __epoch(self, input_data, d_output_data):
         if len(input_data) != len(d_output_data):
             raise Exception('The number of input arrays must be equal to the number of desired output arrays')
 
-        if learning_rate <= 0:
+        if self.lr <= 0:
             raise ValueError('The learning rate must be more than zero')
         
         s = 0
@@ -95,7 +96,7 @@ class Net:
             for l in [-1, -2]:
                 for i in range(self.layers[l-1].layer_len):
                     for j in range(self.layers[l].layer_len):
-                        self.links[l].weights_array[i][j] = self.links[l].weights_array[i][j] + learning_rate * self.layers[l].neuro_vec[j].lc * self.layers[l-1].get_layer_out()[i]
+                        self.links[l].weights_array[i][j] = self.links[l].weights_array[i][j] + self.lr * self.layers[l].neuro_vec[j].lc * self.layers[l-1].get_layer_out()[i]
 
         MSE = s/len(input_data)
         return MSE
@@ -110,6 +111,18 @@ class Net:
 
         MSE = s/len(input_data)
         return MSE
+
+    def training(self, training_input, training_d_output, validation_input, validation_d_output):
+        
+        v_mse = self.__calculate_validation_MSE(validation_input, validation_d_output)
+        wheights = []
+
+        while(v_mse >= self.__calculate_validation_MSE(validation_input, validation_d_output)):
+            wheights = []
+            for link in self.links:
+                wheights.append(link.weights_array)
+            self.__epoch(training_input, training_d_output)
+
 
     
     ##
