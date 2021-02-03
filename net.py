@@ -83,6 +83,21 @@ class Net:
 
         return [out_array, q_error]
     
+    def set_weights(self, weights):
+        
+        if len(weights) != 2:
+            raise Exception('In this version only 2 links must exist so weights lenght must be 2')
+        
+        for i in range(len(weights)):
+            if len(weights[i]) != len(self.links[i].weights_array):
+                raise Exception('The number of lines on' + i + 'position weights array dont match with net\'s weights array')
+            for j in range(len(weights[i])):
+                if len(weights[i][j]) != len(self.links[i].weights_array[j]):
+                    raise Exception('The number of colums dont match with net\'s weights array')
+
+        for i in range(len(weights)):
+            self.links[i].weights_array = weights[i]
+
     def __epoch(self, input_data, d_output_data):
         if len(input_data) != len(d_output_data):
             raise Exception('The number of input arrays must be equal to the number of desired output arrays')
@@ -115,13 +130,24 @@ class Net:
     def training(self, training_input, training_d_output, validation_input, validation_d_output):
         
         v_mse = self.__calculate_validation_MSE(validation_input, validation_d_output)
-        wheights = []
+        weights = []
+        v_mse_array = []
+        t_mse_array = []
 
         while(v_mse >= self.__calculate_validation_MSE(validation_input, validation_d_output)):
-            wheights = []
+            weights = []
+            v_mse = self.__calculate_validation_MSE(validation_input, validation_d_output)
+            v_mse_array.append(v_mse)
+
             for link in self.links:
-                wheights.append(link.weights_array)
-            self.__epoch(training_input, training_d_output)
+                weights.append(link.weights_array)
+
+            t_mse_array.append(self.__epoch(training_input, training_d_output))
+
+        self.set_weights(weights)
+
+        return [weights, v_mse_array, t_mse_array]
+        
 
 
     
