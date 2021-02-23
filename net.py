@@ -1,10 +1,14 @@
+import sys
+import json
 from layer import Layer
 from link import Link
+import numpy as np
 from numpy import dot
 from numpy import transpose
 
+
 class Net:
-    def __init__(self, topology_array, p_coeficient_array, learning_rate = 0.01): #vetor que mostra a quantidade de neurônios em cada camada
+    def __init__(self, topology_array, p_coeficient_array, learning_rate = 0.1): #vetor que mostra a quantidade de neurônios em cada camada
         
         ## Verificações
         
@@ -21,21 +25,19 @@ class Net:
         self.lr = learning_rate
 
         i = 0
-        for number in topology_array:#Alocação dos layers de acordo com a topologia da rede
+        for number in topology_array: #Alocação dos layers de acordo com a topologia da rede
             self.layers.append(Layer(position_id = i, bias=1))
             self.layers[i].create_neurons(number, p_coeficient_array[i])
             i = i + 1
-
-
-        for i in range(len(topology_array) - 1):# Criação dos links
+            
+        for i in range(len(topology_array) - 1): # Criação dos links
             self.links.append(Link(self.layers[i], self.layers[i + 1]))
+            
 
     ## Funções de interação com a classe
 
     def net_run(self, in_array, d_array = []):# Retorna a saída da rede e se inserida uma saída esperada são calculados os gradientes locais de cada neurônio
-        
         ## Verificações
-
         if len(in_array) != self.layers[0].layer_len:
             raise Exception('The number of inputs must be equal to the number of input neurons')
 
@@ -47,6 +49,8 @@ class Net:
         ## Determinação da saída da rede
 
         for i in range(len(self.layers)):
+            layer = np.array(self.layers[i - 1].get_layer_out()) 
+            
             if i == 0:
                 for j in range(len(in_array)):
                     self.layers[0].neuro_vec[j].set_sum(in_array[j])
@@ -56,6 +60,8 @@ class Net:
                     self.layers[i].neuro_vec[j].set_sum(dot(self.layers[i - 1].get_layer_out(), transpose(self.links[i - 1].weights_array)[j]) + self.layers[i].bias)
         
         out_array = self.layers[-1].get_layer_out()
+        ##print(out_array)
+        ##print(d_array)
 
         ##
 
@@ -132,9 +138,11 @@ class Net:
         v_mse = self.__calculate_validation_MSE(validation_input, validation_d_output)
         weights = []
         v_mse_array = []
-        t_mse_array = []
-
-        while(v_mse >= self.__calculate_validation_MSE(validation_input, validation_d_output)):
+        t_mse_array = []    
+        i = 0
+        while(v_mse >= 0.05):
+            if(i >= 100 and v_mse_array[-1] > v_mse):
+                break
             weights = []
             v_mse = self.__calculate_validation_MSE(validation_input, validation_d_output)
             v_mse_array.append(v_mse)
@@ -143,26 +151,14 @@ class Net:
                 weights.append(link.weights_array)
 
             t_mse_array.append(self.__epoch(training_input, training_d_output))
+            i = i+1
+            print(str(i) + " :" + str(v_mse)) 
 
         self.set_weights(weights)
 
-        return [weights, v_mse_array, t_mse_array]
+        print(self.net_run([14.03,14.16,0.8796,5.438,3.201,1.717,5.001], [1]))
+
+        net_training_data = {"weights": weights, "t_mse_array": t_mse_array, "v_mse_array": v_mse_array}
+        return net_training_data
         
-
-
-    
     ##
-
-        
-##  Teste pra ver se o código está sem erros
-
-rede = Net([2,2,1],[[1,1],[1,1],[1,1]])
-
-print('____________II_________________')
-print(rede.links[0].weights_array)
-print('_____________________________')
-print(rede.links[1].weights_array)
-print('_____________________________')
-print(rede.net_run([0.2, 0.3], [5]))
-
-##
