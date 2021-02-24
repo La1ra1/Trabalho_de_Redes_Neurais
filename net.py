@@ -8,7 +8,7 @@ from numpy import transpose
 
 
 class Net:
-    def __init__(self, topology_array, p_coeficient_array, learning_rate = 0.1): #vetor que mostra a quantidade de neurônios em cada camada
+    def __init__(self, topology_array, p_coeficient_array, learning_rate = 0.05): #vetor que mostra a quantidade de neurônios em cada camada
         
         ## Verificações
         
@@ -140,23 +140,24 @@ class Net:
         v_mse_array = []
         t_mse_array = []    
         i = 0
-        while(v_mse >= 0.05):
-            if(i >= 100 and v_mse_array[-1] > v_mse):
-                break
+
+        while(v_mse >= 0.1):
             weights = []
             v_mse = self.__calculate_validation_MSE(validation_input, validation_d_output)
-            v_mse_array.append(v_mse)
-
+            
             for link in self.links:
                 weights.append(link.weights_array)
+
+            if(i >= 100 and (v_mse_array[-1] < v_mse)):
+                break
+            
+            v_mse_array.append(v_mse)
 
             t_mse_array.append(self.__epoch(training_input, training_d_output))
             i = i+1
             print(str(i) + " :" + str(v_mse)) 
 
         self.set_weights(weights)
-
-        print(self.net_run([14.03,14.16,0.8796,5.438,3.201,1.717,5.001], [1]))
 
         net_training_data = {"weights": weights, "t_mse_array": t_mse_array, "v_mse_array": v_mse_array}
         return net_training_data

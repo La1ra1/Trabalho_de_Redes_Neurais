@@ -2,7 +2,7 @@ from net import Net
 import csv
 from numpy import transpose
 
-def read_dataset_csv(filepath):
+def read_dataset_csv(filepath): 
     input_data = []
     output_data = []
     with open(filepath, newline='') as csvfile:
@@ -32,27 +32,19 @@ def normalize_data(data, minmax):
 	for row in data:
 		for i in range(len(row)):
 			row[i] = (row[i] - minmax[i][0]) / (minmax[i][1] - minmax[i][0])
-           
-input_train, output_train = read_dataset_csv("./net_info/iris_train.csv").values()
-input_validation, output_validation = read_dataset_csv("./net_info/iris_validation.csv").values()
+
+
+input_train, output_train = read_dataset_csv("./net_info/seeds_train.csv").values()
+input_validation, output_validation = read_dataset_csv("./net_info/seeds_validation.csv").values()
 
 normalize_data(input_train, dataset_minmax(input_train))
 normalize_data(input_validation, dataset_minmax(input_validation))
 
-print(input_train)
-
-rede = Net([7,9,1], [[1,1,1,1,1,1,1], [1,1,1,1,1,1,1,1,1], [1]])
+rede = Net([7,4,1], [[1,1,1,1,1,1,1], [1,1,1,1], [1]])
 
 training_data = rede.training(input_train, output_train, input_validation, output_validation)
-#print(training_data)
-print("after")
 
+print(training_data["weights"])
+results = []
 for i in range(len(input_validation)):
-    print(rede.net_run(input_validation[i], output_validation[i]))
-
-#print('____________II_________________')
-#print(rede.links[0].weights_array)
-#print('_____________________________')
-#print(rede.links[1].weights_array)
-#print('_____________________________')
-#print(rede.net_run([0.2, 0.3], [5]))
+    results.append(rede.net_run(input_validation[i], output_validation[i])[0][0])
