@@ -1,12 +1,3 @@
-# Trabalho-de-RNA
+# Trabalho de Redes Neurais Artificiais
 
-Objetivo(s) principai(s) atuai(s):
-
-1 - Implementar a função de treinamento utilizando o algorítmo backpropagation;
-2 - Encontrar uma aplicação e a base de dados para a rede.
-
-Objetivo(s) secundário(s):
-
-1 - (FEITO) Comentar o código para facilitar a manutenção;
-2 - Manutenção do código.
-
+Meu primeiro Repositório. Foi criado para realizar um trabalho cujo o objetivo era implementar uma classe que representa uma rede neural artificial para uma disciplina de graduação.
